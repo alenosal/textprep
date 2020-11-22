@@ -19,3 +19,9 @@ CREATE TABLE User_type (
 );
 
 INSERT into user_type (id_type, type_name) values (1, 'admin'), (2, 'user'), (3, 'group_admin');
+
+CREATE TABLE Files (
+    id VARCHAR(100) NOT NULL PRIMARY KEY,
+    name varchar(100) not null,
+    data bigint
+);

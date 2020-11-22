@@ -14,7 +14,7 @@ public class TemplateController {
         return "login";
     }
 
-    @GetMapping("api/v1/upload")
+    @GetMapping("/upload")
     public String getUploadView() {return "upload"; }
 
 }
