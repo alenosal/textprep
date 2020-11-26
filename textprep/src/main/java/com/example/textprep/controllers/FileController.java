@@ -1,5 +1,6 @@
 package com.example.textprep.controllers;
 
+import com.example.textprep.model.DocxManipulator;
 import com.example.textprep.model.FileDb;
 import com.example.textprep.model.ResponseFile;
 import com.example.textprep.model.ResponseMessage;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,13 +22,15 @@ import java.util.stream.Collectors;
 public class FileController {
 
     @Autowired
-    private FileService storageService;
+    private FileService fileService;
+    private DocxManipulator docxManipulator;
+    private ArrayList<String> replacemansts;
 
     @PostMapping("/uploadFile")
     public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file) {
         String message = "";
         try {
-            storageService.uploadFile(file);
+            fileService.uploadFile(file);
 
             message = "Uploaded the file successfully: " + file.getOriginalFilename();
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
@@ -38,7 +42,7 @@ public class FileController {
 
     @GetMapping("/files")
     public ResponseEntity<List<ResponseFile>> getListFiles() {
-        List<ResponseFile> files = storageService.getAllFiles().map(dbFile -> {
+        List<ResponseFile> files = fileService.getAllFiles().map(dbFile -> {
             String fileDownloadUri = ServletUriComponentsBuilder
                     .fromCurrentContextPath()
                     .path("/files/")
@@ -48,6 +52,7 @@ public class FileController {
             return new ResponseFile(
                     dbFile.getName(),
                     fileDownloadUri,
+                    dbFile.getType(),
                     dbFile.getData().length);
         }).collect(Collectors.toList());
 
@@ -56,10 +61,35 @@ public class FileController {
 
     @GetMapping("/files/{id}")
     public ResponseEntity<byte[]> getFile(@PathVariable String id) {
-        FileDb fileDb = storageService.getFileById(id);
+        FileDb fileDb = fileService.getFileById(id);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileDb.getName() + "\"")
                 .body(fileDb.getData());
     }
+
+//    @GetMapping("/downloadFile")
+//    public void getFile( HttpServletRequest request,
+//                  HttpServletResponse response,
+//                  @PathVariable("fileName") String fileName)
+//    {
+//        //If user is not authorized - he should be thrown out from here itself
+//
+//        //Authorized user will download the file
+//        String dataDirectory = request.getServletContext().getRealPath("/WEB-INF/downloads/pdf/");
+//        Path file = Paths.get(dataDirectory, fileName);
+//        if (Files.exists(file))
+//        {
+//            response.setContentType("application/pdf");
+//            response.addHeader("Content-Disposition", "attachment; filename="+fileName);
+//            try
+//            {
+//                Files.copy(file, response.getOutputStream());
+//                response.getOutputStream().flush();
+//            }
+//            catch (IOException ex) {
+//                ex.printStackTrace();
+//            }
+//        }
+//    }
 }

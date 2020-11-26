@@ -11,6 +11,7 @@ import java.util.List;
 
 public class DocxManipulator {
     private XWPFDocument document;
+//    private String fileId;
 
     public DocxManipulator(XWPFDocument document) throws IOException {
         this.document = document;
@@ -22,7 +23,7 @@ public class DocxManipulator {
         System.out.println(text);
     }
 
-    public void replacePlaceholders(ArrayList<String> replacements) throws IOException {
+    public XWPFDocument replacePlaceholders(ArrayList<String> replacements) throws IOException {
         int i =0;
 
         for (XWPFParagraph p : document.getParagraphs()) {
@@ -38,6 +39,6 @@ public class DocxManipulator {
                 }
             }
         }
-       printText();
+       return document;
     }
 }

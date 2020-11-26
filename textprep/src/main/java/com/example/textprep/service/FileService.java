@@ -1,14 +1,18 @@
 package com.example.textprep.service;
 
+import com.example.textprep.model.DocxManipulator;
 import com.example.textprep.model.FileDb;
 import com.example.textprep.repository.FileRepository;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.stream.Stream;
 
 
@@ -22,9 +26,9 @@ public class FileService {
 
     public FileDb uploadFile(MultipartFile file) throws IOException {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-        FileDb FileDB = new FileDb(fileName, file.getBytes());
+        FileDb fileDb = new FileDb(fileName,file.getBytes(), file.getContentType());
 
-        return fileRepository.save(FileDB);
+        return fileRepository.save(fileDb);
     }
 
     public FileDb getFileById(String id) {
@@ -34,5 +38,14 @@ public class FileService {
     public Stream<FileDb> getAllFiles() {
         return fileRepository.findAll().stream();
     }
+
+    public XWPFDocument createFile (String fileId, ArrayList<String> replacements) throws IOException {
+        byte[] docByte = getFileById(fileId).getData();
+        XWPFDocument docx = new XWPFDocument(new ByteArrayInputStream(docByte));
+        DocxManipulator docxManipulator = new DocxManipulator(docx);
+        return docxManipulator.replacePlaceholders(replacements);
+    }
+
+
 
 }

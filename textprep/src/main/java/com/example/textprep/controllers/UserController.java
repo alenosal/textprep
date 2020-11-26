@@ -1,28 +1,59 @@
 package com.example.textprep.controllers;
 
 import com.example.textprep.model.User;
+import com.example.textprep.service.SecurityService;
+import com.example.textprep.service.UserService;
+import com.example.textprep.service.UserValidator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
-import java.util.List;
-
 @RestController
-@RequestMapping("api/v1/users")
 public class UserController {
 
-    private static final List<User> USERS = Arrays.asList(
-            new User(1, "Alek"),
-            new User(2, "Dawid")
-    );
+    @Autowired
+    private UserService userService;
 
-    @GetMapping(path = "{userId}")
-    public User getUser(@PathVariable("userId") Integer userId) {
-        return USERS.stream()
-                .filter(user -> userId.equals(user.getUserId()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("User" + userId + " does not exists"));
+    @Autowired
+    private SecurityService securityService;
+
+    @Autowired
+    private UserValidator userValidator;
+
+    @GetMapping("/registration")
+    public String registration(Model model) {
+        model.addAttribute("userForm", new User());
+
+        return "registration";
+    }
+
+    @PostMapping("/registration")
+    public String registration(@ModelAttribute("userForm") User userForm, BindingResult bindingResult) {
+        userValidator.validate(userForm, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            return "registration";
+        }
+
+        userService.save(userForm);
+
+        securityService.autoLogin(userForm.getUsername(), userForm.getPasswordConfirm());
+
+        return "redirect:/";
+    }
+
+    @GetMapping("/login")
+    public String login(Model model, String error, String logout) {
+        if (error != null)
+            model.addAttribute("error", "Your username and password is invalid.");
+
+        if (logout != null)
+            model.addAttribute("message", "You have been logged out successfully.");
+
+        return "login.jsp";
     }
 }
