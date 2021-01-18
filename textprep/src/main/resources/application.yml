@@ -5,3 +5,19 @@ app:
     username: postgres
     password: 1234
     pool-size: 30
+
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: XXXXXXXXX@gmail.com
+    password: XXXXXXXXX
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 10000
+          timeout: 5000
+          writetimeout: 10000

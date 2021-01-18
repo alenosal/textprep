@@ -1,59 +1,55 @@
-package com.example.textprep.controllers;
+package com.example.textprep.Controllers;
 
-import com.example.textprep.model.User;
-import com.example.textprep.service.SecurityService;
-import com.example.textprep.service.UserService;
-import com.example.textprep.service.UserValidator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+
+import com.example.textprep.Services.ConfirmationTokenService;
+import com.example.textprep.Services.UserService;
+import com.example.textprep.entity.ConfirmationToken;
+import com.example.textprep.entity.User;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@RestController
+import java.util.Optional;
+
+@Controller
+@AllArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+	private final UserService userService;
 
-    @Autowired
-    private SecurityService securityService;
+	private final ConfirmationTokenService confirmationTokenService;
 
-    @Autowired
-    private UserValidator userValidator;
 
-    @GetMapping("/registration")
-    public String registration(Model model) {
-        model.addAttribute("userForm", new User());
+	@GetMapping("/sign-in")
+	String signIn() {
 
-        return "registration";
-    }
+		return "sign-in";
+	}
 
-    @PostMapping("/registration")
-    public String registration(@ModelAttribute("userForm") User userForm, BindingResult bindingResult) {
-        userValidator.validate(userForm, bindingResult);
+	@GetMapping("/sign-up")
+	String signUpPage(User user) {
 
-        if (bindingResult.hasErrors()) {
-            return "registration";
-        }
+		return "sign-up";
+	}
 
-        userService.save(userForm);
+	@PostMapping("/sign-up")
+	String signUp(User user) {
 
-        securityService.autoLogin(userForm.getUsername(), userForm.getPasswordConfirm());
+		userService.signUpUser(user);
 
-        return "redirect:/";
-    }
+		return "redirect:/sign-in";
+	}
 
-    @GetMapping("/login")
-    public String login(Model model, String error, String logout) {
-        if (error != null)
-            model.addAttribute("error", "Your username and password is invalid.");
+	@GetMapping("/sign-up/confirm")
+	String confirmMail(@RequestParam("token") String token) {
 
-        if (logout != null)
-            model.addAttribute("message", "You have been logged out successfully.");
+		Optional<ConfirmationToken> optionalConfirmationToken = confirmationTokenService.findConfirmationTokenByToken(token);
 
-        return "login.jsp";
-    }
+		//optionalConfirmationToken.ifPresent(userService::confirmUser);
+
+		return "redirect:/sign-in";
+	}
+
 }

@@ -1,28 +1,60 @@
 CREATE TABLE Users (
-    id_user UUID NOT NULL PRIMARY KEY,
-    user_type_id integer,
-    name VARCHAR(100) NOT NULL,
+    id VARCHAR(100) NOT NULL PRIMARY KEY,
+    username VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
     password VARCHAR(100) NOT NULL,
-    id_group UUID
+    user_role VARCHAR(30) NOT NULL,
+    locked boolean not NULL,
+    enabled boolean NOT NULL
 );
 
-CREATE TABLE Groups (
-    id_group UUID not null PRIMARY KEY,
-    name varchar(100) not null,
-    id_user UUID NOT NULL
+CREATE TABLE confirmation_token (
+    id BIGSERIAL NOT NULL,
+    confirmation_token varchar(100) not null,
+    created_date VARCHAR(100) not null
 );
 
-CREATE TABLE User_type (
-    id_type integer,
-    type_name VARCHAR(100)
-);
 
-INSERT into user_type (id_type, type_name) values (1, 'admin'), (2, 'user'), (3, 'group_admin');
-
-CREATE TABLE Files (
+CREATE TABLE Schemas (
     id VARCHAR(100) NOT NULL PRIMARY KEY,
     name varchar(100) not null,
     type VARCHAR(100) not null,
+    user_id VARCHAR(100) NOT NULL,
     data bigint
 );
+
+CREATE TABLE Questions (
+    id VARCHAR(100) NOT NULL PRIMARY KEY,
+    number INTEGER not null,
+    description VARCHAR(255) not null,
+    schema_id VARCHAR(100) not null
+);
+
+CREATE TABLE Groups (
+    id VARCHAR(100) NOT NULL PRIMARY KEY,
+    name varchar(100),
+    user_id VARCHAR(100)
+);
+
+CREATE TABLE Groups_Members (
+    group_id VARCHAR(100),
+    user_id VARCHAR(100)
+);
+
+CREATE TABLE Created_files (
+    id VARCHAR(100) NOT NULL PRIMARY KEY,
+    name varchar(100) not null,
+    type VARCHAR(100) not null,
+    user_id VARCHAR(100) NOT NULL,
+    data bigint,
+    date  varchar(100)
+);
+
+CREATE TABLE shared_schemas (
+    id VARCHAR(100) NOT NULL PRIMARY KEY,
+    SCHEMA_id varchar(100),
+    group_id varchar(100),
+    user_id varchar(100)
+);
+
+
