@@ -5,12 +5,13 @@ import com.example.textprep.Repositories.QuestionRepository;
 import com.example.textprep.Repositories.SchemeRepository;
 import com.example.textprep.entity.DocxInput;
 import com.example.textprep.entity.DocxManipulator;
-import com.example.textprep.entity.SchemeDb;
 import com.example.textprep.entity.Question;
+import com.example.textprep.entity.SchemeDb;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
 
@@ -67,9 +67,15 @@ public class SchemeService {
         return docxManipulator.replacePlaceholders(replacements);
     }
 
-    public List<SchemeDb> getUserSchemes(String userId) {
-        List<SchemeDb> schemes = new ArrayList<SchemeDb>();
-        return schemes;
+
+    @Transactional
+    public Stream<SchemeDb> getUserSchemes(String userId) {
+
+        return schemeRepository.getUserSchemas(userId).stream();
+    }
+    @Transactional
+    public Stream<SchemeDb> getUserGroupSchemes(String userId) {
+        return schemeRepository.getUserGroupSchemas(userId).stream();
     }
 
 }

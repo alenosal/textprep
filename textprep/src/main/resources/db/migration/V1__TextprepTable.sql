@@ -1,7 +1,7 @@
 CREATE TABLE Users (
     id VARCHAR(100) NOT NULL PRIMARY KEY,
-    username VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
+    username VARCHAR(100) NOT NULL UNIQUE ,
+    email VARCHAR(100) NOT NULL UNIQUE ,
     password VARCHAR(100) NOT NULL,
     user_role VARCHAR(30) NOT NULL,
     locked boolean not NULL,
@@ -37,6 +37,7 @@ CREATE TABLE Groups (
 );
 
 CREATE TABLE Groups_Members (
+    id varchar(100) NOT NULL PRIMARY KEY,
     group_id VARCHAR(100),
     user_id VARCHAR(100)
 );
