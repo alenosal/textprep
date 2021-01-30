@@ -125,19 +125,7 @@ public class SchemeController {
         User user = (User)authentication.getPrincipal();
         String userId = user.getId();
 
-        List<SchemeDao> files = schemeService.getUserSchemes(userId).map(dbFile -> {
-            String fileDownloadUri = ServletUriComponentsBuilder
-                    .fromCurrentContextPath()
-                    .path("/files/")
-                    .path(dbFile.getId())
-                    .toUriString();
-
-            return new SchemeDao(
-                    dbFile.getName(),
-                    fileDownloadUri,
-                    dbFile.getType(),
-                    dbFile.getData().length);
-        }).collect(Collectors.toList());
+        List<SchemeDao> files = schemeService.getUserSchemes(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(files);
     }

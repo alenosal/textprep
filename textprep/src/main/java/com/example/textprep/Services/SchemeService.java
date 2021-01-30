@@ -3,10 +3,7 @@ package com.example.textprep.Services;
 
 import com.example.textprep.Repositories.QuestionRepository;
 import com.example.textprep.Repositories.SchemeRepository;
-import com.example.textprep.entity.DocxInput;
-import com.example.textprep.entity.DocxManipulator;
-import com.example.textprep.entity.Question;
-import com.example.textprep.entity.SchemeDb;
+import com.example.textprep.entity.*;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,11 +11,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -69,9 +69,21 @@ public class SchemeService {
 
 
     @Transactional
-    public Stream<SchemeDb> getUserSchemes(String userId) {
+    public List<SchemeDao> getUserSchemes(String userId) {
 
-        return schemeRepository.getUserSchemas(userId).stream();
+        return schemeRepository.getUserSchemas(userId).stream().map(dbFile -> {
+            String fileDownloadUri = ServletUriComponentsBuilder
+                    .fromCurrentContextPath()
+                    .path("/files/")
+                    .path(dbFile.getId())
+                    .toUriString();
+
+            return new SchemeDao(
+                    dbFile.getName(),
+                    fileDownloadUri,
+                    dbFile.getType(),
+                    dbFile.getData().length);
+        }).collect(Collectors.toList());
     }
     @Transactional
     public Stream<SchemeDb> getUserGroupSchemes(String userId) {
